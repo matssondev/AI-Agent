@@ -1,6 +1,23 @@
 import os
 
+from google.genai import types
+
 from config import MAX_CHARS
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Gets the content of a file within the permitted working directory",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="File path to get content from, relative to the working directory",
+            ),
+        },
+        required=["file_path"],
+    ),
+)
 
 
 # Get content of a file within the permitted working directory
