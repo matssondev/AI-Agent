@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from functions.call_function import available_functions
+from functions.call_function import available_functions, call_function
 from prompts import system_prompt
 
 # set environment variables
@@ -46,8 +46,23 @@ def main():
 
     function_calls = response.function_calls
     if function_calls:
+        function_results = []
         for function_call in function_calls:
-            print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call, verbose=args.verbose)
+
+            if not function_call_result.parts:
+                raise Exception("No parts in function call result")
+
+            if function_call_result.parts[0].function_response is None:
+                raise Exception("No function_response in result")
+
+            if function_call_result.parts[0].function_response.response is None:
+                raise Exception("No response in function_response")
+
+            function_results.append(function_call_result.parts[0])
+
+            if args.verbose:
+                print(f"-> {function_call_result.parts[0].function_response.response}")
     elif response.text:
         print(response.text)
 
